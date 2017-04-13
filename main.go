@@ -12,9 +12,10 @@ import (
 )
 
 var (
-	source = flag.String("source", "vendor", "source directory")
-	target = flag.String("target", fmt.Sprintf("%s/bin", os.Getenv("GOPATH")), "target directory (defaults to $GOPATH/bin)")
-	quiet  = flag.Bool("quiet", false, "disable output")
+	source   = flag.String("source", "vendor", "source directory")
+	target   = flag.String("target", fmt.Sprintf("%s/bin", os.Getenv("GOPATH")), "target directory (defaults to $GOPATH/bin)")
+	commands = flag.String("commands", "", "comma separated list of commands to execute after go install in temporary environment")
+	quiet    = flag.Bool("quiet", false, "disable output")
 )
 
 func main() {
@@ -47,12 +48,27 @@ func main() {
 		fail(err)
 	}
 
-	env := []string{fmt.Sprintf("GOPATH=%s", gopath), fmt.Sprintf("GOBIN=%s", gobin)}
+	oldpath := os.Getenv("PATH")
+	path := fmt.Sprintf("%s%s%s", gobin, string(os.PathListSeparator), os.Getenv("PATH"))
+	os.Setenv("PATH", fmt.Sprintf("%s%s%s", gobin, string(os.PathListSeparator), os.Getenv("PATH")))
+	defer os.Setenv("PATH", oldpath)
 
+	env := []string{fmt.Sprintf("PATH=%s", path), fmt.Sprintf("GOPATH=%s", gopath), fmt.Sprintf("GOBIN=%s", gobin)}
 	args := append([]string{"install"}, packages...)
 	if out, err := doexec("go", args, env); err != nil {
 		print(string(out))
 		fail(err)
+	}
+
+	if len(*commands) > 0 {
+		for _, cmd := range strings.Split(*commands, ",") {
+			split := strings.Split(cmd, " ")
+			if out, err := doexec(split[0], split[1:], env); err != nil {
+				print(string(out))
+				fail(err)
+			}
+
+		}
 	}
 }
 
@@ -95,13 +111,8 @@ func link(gopath, source string) error {
 }
 
 func doexec(bin string, args []string, env []string) ([]byte, error) {
-	exe, err := exec.LookPath(bin)
-	if err != nil {
-		return nil, err
-	}
-
-	print(fmt.Sprintf("%s %s", exe, strings.Join(args, " ")))
-	cmd := exec.Command(exe, args...)
+	print(fmt.Sprintf("%s %s", bin, strings.Join(args, " ")))
+	cmd := exec.Command(bin, args...)
 	cmd.Env = env
 
 	return cmd.CombinedOutput()
