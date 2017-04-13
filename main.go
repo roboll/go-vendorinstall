@@ -25,7 +25,6 @@ func main() {
 	if len(packages) < 1 {
 		fail(errors.New("no packages: specify a package"))
 	}
-	print(fmt.Sprintf("packages: %s", strings.Join(packages, " ")))
 
 	gopath, err := ioutil.TempDir("", "go-vendorinstall-gopath")
 	if err != nil {
