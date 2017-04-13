@@ -13,7 +13,7 @@ import (
 
 var (
 	source = flag.String("source", "vendor", "source directory")
-	target = flag.String("target", "$GOPATH/bin", "target directory")
+	target = flag.String("target", fmt.Sprintf("%s/bin", os.Getenv("GOPATH")), "target directory (defaults to $GOPATH/bin)")
 	quiet  = flag.Bool("quiet", false, "disable output")
 )
 
