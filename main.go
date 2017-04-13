@@ -37,11 +37,19 @@ func main() {
 		}
 	}()
 
+	gobin, err := filepath.Abs(*target)
+	if err != nil {
+		fail(err)
+	}
+	print(fmt.Sprintf("gobin: %s", gobin))
+
 	if err := link(gopath, *source); err != nil {
 		fail(err)
 	}
 
-	if out, err := install(gopath, *target, packages); err != nil {
+	env := []string{fmt.Sprintf("GOPATH=%s", gopath), fmt.Sprintf("GOBIN=%s", gobin)}
+
+	if out, err := install(env, packages); err != nil {
 		print(string(out))
 		fail(err)
 	}
@@ -85,19 +93,13 @@ func link(gopath, source string) error {
 	return nil
 }
 
-func install(gopath, target string, packages []string) ([]byte, error) {
+func install(env []string, packages []string) ([]byte, error) {
 	exe, err := exec.LookPath("go")
 	if err != nil {
 		return nil, err
 	}
 
-	gobin, err := filepath.Abs(target)
-	if err != nil {
-		return nil, err
-	}
-
 	args := append([]string{"install"}, packages...)
-	env := []string{fmt.Sprintf("GOPATH=%s", gopath), fmt.Sprintf("GOBIN=%s", gobin)}
 	print(fmt.Sprintf("%s %s", exe, strings.Join(args, " ")))
 
 	cmd := exec.Command(exe, args...)
