@@ -12,5 +12,7 @@ fmt:
 lint:
 	gometalinter $(PACKAGE)
 
+test:
+	go test -v -race $(PACKAGE)
 
-.PHONY: build install fmt lint
+.PHONY: build install fmt lint test
