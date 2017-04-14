@@ -1,4 +1,4 @@
-# go-vendorinstall
+# go-vendorinstall [![CircleCI](https://circleci.com/gh/roboll/go-vendorinstall.svg?style=svg)](https://circleci.com/gh/roboll/go-vendorinstall)
 
 Install go binaries from `vendor` dependencies.
 
