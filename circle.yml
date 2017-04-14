@@ -17,7 +17,7 @@ dependencies:
 
 test:
   pre:
-    - cd "$WORK" && make fmt lint
+    - cd "$WORK" && make fmt
 
   override:
     - cd "$WORK" && make test
