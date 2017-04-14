@@ -30,8 +30,12 @@ func main() {
 	if err != nil {
 		fail(err)
 	}
-	defer os.RemoveAll(gopath)
 	print(fmt.Sprintf("gopath: %s", gopath))
+	defer func() {
+		if err := os.RemoveAll(gopath); err != nil {
+			fail(err)
+		}
+	}()
 
 	if err := link(gopath, *source); err != nil {
 		fail(err)
