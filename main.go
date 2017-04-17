@@ -13,7 +13,7 @@ import (
 
 var (
 	source   = flag.String("source", "vendor", "source directory")
-	target   = flag.String("target", fmt.Sprintf("%s/bin", os.Getenv("GOPATH")), "target directory (defaults to $GOPATH/bin)")
+	target   = flag.String("target", "", "target directory (defaults to $GOBIN, if not set $GOPATH/bin)")
 	commands = flag.String("commands", "", "comma separated list of commands to execute after go install in temporary environment")
 	quiet    = flag.Bool("quiet", false, "disable output")
 )
@@ -36,6 +36,15 @@ func main() {
 			fail(err)
 		}
 	}()
+
+	if len(*target) == 0 {
+		if gobin := os.Getenv("GOBIN"); len(gobin) > 0 {
+			target = &gobin
+		} else {
+			bin := fmt.Sprintf("%s/bin", os.Getenv("GOPATH"))
+			target = &bin
+		}
+	}
 
 	gobin, err := filepath.Abs(*target)
 	if err != nil {

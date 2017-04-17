@@ -27,5 +27,5 @@ Usage of go-vendorinstall:
   -source string
     	source directory (default "vendor")
   -target string
-    	target directory (defaults to $GOPATH/bin) (default "$GOPATH/bin")
+    	target directory (defaults to $GOBIN, if not set $GOPATH/bin)
 ```
