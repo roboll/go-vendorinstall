@@ -63,7 +63,7 @@ func main() {
 
 	env := []string{fmt.Sprintf("PATH=%s", path), fmt.Sprintf("GOPATH=%s", gopath), fmt.Sprintf("GOBIN=%s", gobin)}
 	args := append([]string{"install"}, packages...)
-	if out, err := doexec("go", args, env); err != nil {
+	if out, err := doexec("go", gopath, args, env); err != nil {
 		print(string(out))
 		fail(err)
 	}
@@ -71,11 +71,10 @@ func main() {
 	if len(*commands) > 0 {
 		for _, cmd := range strings.Split(*commands, ",") {
 			split := strings.Split(cmd, " ")
-			if out, err := doexec(split[0], split[1:], env); err != nil {
+			if out, err := doexec(split[0], gopath, split[1:], env); err != nil {
 				print(string(out))
 				fail(err)
 			}
-
 		}
 	}
 }
@@ -118,10 +117,11 @@ func link(gopath, source string) error {
 	return nil
 }
 
-func doexec(bin string, args []string, env []string) ([]byte, error) {
+func doexec(bin, dir string, args []string, env []string) ([]byte, error) {
 	print(fmt.Sprintf("%s %s", bin, strings.Join(args, " ")))
 	cmd := exec.Command(bin, args...)
 	cmd.Env = env
+	cmd.Dir = dir
 
 	return cmd.CombinedOutput()
 }
