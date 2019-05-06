@@ -61,7 +61,13 @@ func main() {
 	os.Setenv("PATH", fmt.Sprintf("%s%s%s", gobin, string(os.PathListSeparator), os.Getenv("PATH")))
 	defer os.Setenv("PATH", oldpath)
 
-	env := []string{fmt.Sprintf("PATH=%s", path), fmt.Sprintf("GOPATH=%s", gopath), fmt.Sprintf("GOBIN=%s", gobin)}
+	env := []string{
+		fmt.Sprintf("PATH=%s", path),
+		fmt.Sprintf("GOPATH=%s", gopath),
+		fmt.Sprintf("GOBIN=%s", gobin),
+		fmt.Sprintf("GOCACHE=%s", os.Getenv("GOCACHE")),
+		fmt.Sprintf("HOME=%s", os.Getenv("HOME")),
+	}
 	args := append([]string{"install"}, packages...)
 	if out, err := doexec("go", gopath, args, env); err != nil {
 		print(string(out))
